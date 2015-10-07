@@ -1,32 +1,36 @@
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
 
-# Precompiled Headers
-*.gch
-*.pch
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
+# ALLGEMEIN ....................................................
+# Gitignore bezieht sich nur auf Dateinen vor dem Adden.
+# Sobald Dateien zum Commiten geadded wurden, sieht sie gitignore nicht.
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+# Dateien nach add wieder ausschliessen
+# git reset HEAD **/<directory>/*
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+# Dateiformate
+*~
+*qar
+*bak
+*qws
+*kpt
+*done
+*rpt
+*summary
+*smsg
+*jdi
 
-# Debug files
-*.dSYM/
+
+
+
+
+# SYNTHESE.........................................................
+
+**/**/incremental_db/*
+**/**/db/*
+**/**/output_files/*
+
+
+
+
+
+
