@@ -17,7 +17,6 @@ use ieee.numeric_std.all;
 
 entity metastability_1 is
 	port(	clk: 				in std_logic;
-			rst_n: 			in std_logic;
 			verification:	out std_logic; 
 			zero_out:		out std_logic
 	);
