@@ -13,12 +13,13 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
+ENTITY metastability IS
 
-entity metastability is
 port (CLOCK_27 : 	in std_logic;
 		CLOCK_50 : 	in std_logic;
 		SW_16:		in std_logic;     -- set s0
       SW_17 : 		in std_logic; 		-- set s2 
+		KEY_1 : 		in std_logic; 		-- Reset
       GPIO_0_0 :  out std_logic;		-- state 
 		GPIO_0_1 :  out std_logic;    -- pulse 
 		LEDR_0:		out std_logic;
@@ -61,10 +62,8 @@ begin
 --------------------------------------------
 	fsm: process (all)
 	begin
-		if (SW_16 = '1') then
+		if (KEY_1 = '0') then
 			state <= s0;
-		elsif (SW_17 = '1') then
-			state <= s2;
 		elsif (rising_edge(CLOCK_50)) then
 		  state <= next_state;
 		end if;
@@ -73,7 +72,7 @@ begin
 
 	counter: process (all)
 	begin
-		if (cnt_reset = '1') then
+		if (KEY_1 = '0') then
 			cnt <= 0;
 		elsif(rising_edge(CLOCK_27)) then
 		  cnt <= next_cnt;   			
@@ -84,12 +83,16 @@ begin
 
 	
 --------------------------------------------
--- input process
+-- Asynynchronous Pulse Counter
 -------------------------------------------- 
 	counter_input: process (all)	
 	begin			
 			next_cnt <= cnt + 1; 
 	end process;
+	
+--------------------------------------------
+-- Test Metastable State Machine Logic
+-------------------------------------------- 	
 
 	fsm_input: process (all)		
 	begin 	
@@ -103,49 +106,21 @@ begin
 			
 		  when s1 =>    
 			 if(pulse ='1') then
-				next_state <= s0;  
-			 else
+				IF SW_17 = '0' THEN
+						next_state <= s0;  
+				ELSE next_state <= s2;
+				END IF;
+			 ELSE
 				next_state <= s1;
 			 end if;
 
 		 -- no official states
-		 when s2 =>       
-			 if(pulse ='1') then
-				next_state <= s3;
-			 else
-				next_state <= s2;
-			 end if;
-	
-		 when s3 =>       
-			 if(pulse ='1') then
-				next_state <= s4;
-			 else
-				next_state <= s3;
-			 end if;
-		 
-		 when s4 =>       
-			 if(pulse ='1') then
-				next_state <= s5;
-			 else
-				next_state <= s4;
-			 end if;
-
-		 when s5 =>       
-			 if(pulse ='1') then
-				next_state <= s6;
-			 else
-				next_state <= s5;
-			 end if;
-
-		 when s6 =>       
-			 if(pulse ='1') then
-				next_state <= s7;
-			 else
-				next_state <= s6;
-			 end if;
-		
-		when s7 =>       		 
-				next_state <= s7;    
+		 when s2 =>   next_state <= s3;
+		when s3 =>   next_state <= s4;
+			when s4 =>  next_state <= s5;
+		 when s5 =>	next_state <= s6;
+		 when s6 => next_state <= s7;
+		when s7 =>  next_state <= s7;    
 		end case;
 		
 	end process;	
@@ -158,10 +133,8 @@ begin
 	decode_cnt_max: process (all)
 	begin
 		if (cnt = 15) then
-			cnt_reset <= '1';
 			pulse <= '1';
 		else 
-			cnt_reset <= '0';
 			pulse <= '0';
 		end if;
 	end process;	
@@ -170,96 +143,46 @@ begin
 	
 	fsm_output: process (all)
 	begin
-			GPIO_0_0<= '0';
-			LEDR_0  <= '1';
-			LEDR_1  <= '0';
-			LEDR_2  <= '0';
-			LEDR_3  <= '0';
-			LEDR_4  <= '0';
-			LEDR_5  <= '0';
-			LEDR_6  <= '0';
-			LEDR_7  <= '0';	
-		if (state = s0) then 
-			GPIO_0_0<= '0';
-			LEDR_0  <= '1';
-			LEDR_1  <= '0';
-			LEDR_2  <= '0';
-			LEDR_3  <= '0';
-			LEDR_4  <= '0';
-			LEDR_5  <= '0';
-			LEDR_6  <= '0';
-			LEDR_7  <= '0';			
-		elsif (state = s1) then 
-			GPIO_0_0<= '0';
-			LEDR_0  <= '0';
-			LEDR_1  <= '1';
-			LEDR_2  <= '0';
-			LEDR_3  <= '0';
-			LEDR_4  <= '0';
-			LEDR_5  <= '0';
-			LEDR_6  <= '0';
-			LEDR_7  <= '0';
-		elsif (state = s2) then 
-			GPIO_0_0<= '1';
-			LEDR_0  <= '0';
-			LEDR_1  <= '0';
-			LEDR_2  <= '1';
-			LEDR_3  <= '0';
-			LEDR_4  <= '0';
-			LEDR_5  <= '0';
-			LEDR_6  <= '0';
-			LEDR_7  <= '0';
-		elsif (state = s3) then 
-			GPIO_0_0 <= '1';
-			LEDR_0  <= '0';
-			LEDR_1  <= '0';
-			LEDR_2  <= '0';
-			LEDR_3  <= '1';
-			LEDR_4  <= '0';
-			LEDR_5  <= '0';
-			LEDR_6  <= '0';
-			LEDR_7  <= '0';
-		elsif (state = s4) then 
-			GPIO_0_0<= '1';
-			LEDR_0  <= '0';
-			LEDR_1  <= '0';
-			LEDR_2  <= '0';
-			LEDR_3  <= '0';
-			LEDR_4  <= '1';
-			LEDR_5  <= '0';
-			LEDR_6  <= '0';
-			LEDR_7  <= '0';
-		elsif (state = s5) then 
-			GPIO_0_0 <= '1';
-			LEDR_0  <= '0';
-			LEDR_1  <= '0';
-			LEDR_2  <= '0';
-			LEDR_3  <= '0';
-			LEDR_4  <= '0';
-			LEDR_5  <= '1';
-			LEDR_6  <= '0';
-			LEDR_7  <= '0';
-		elsif (state = s6) then 
-			GPIO_0_0 <= '1';
-			LEDR_0  <= '0';
-			LEDR_1  <= '0';
-			LEDR_2  <= '0';
-			LEDR_3  <= '0';
-			LEDR_4  <= '0';
-			LEDR_5  <= '0';
-			LEDR_6  <= '1';
-			LEDR_7  <= '0';
-		elsif (state = s7) then 
-			GPIO_0_0 <= '1';
-			LEDR_0  <= '0';
-			LEDR_1  <= '0';
-			LEDR_2  <= '0';
-			LEDR_3  <= '0';
-			LEDR_4  <= '0';
-			LEDR_5  <= '0';
-			LEDR_6  <= '0';
-			LEDR_7  <= '1';
-		end if;	
+	LEDR_0  <= '0';
+	LEDR_1  <= '0';
+	LEDR_2  <= '0';
+	LEDR_3  <= '0';
+	LEDR_4  <= '0';
+	LEDR_5  <= '0';
+	LEDR_6  <= '0';
+	LEDR_7  <= '0';
+	GPIO_0_0 <= '0';
+	
+		case state is
+			when s0 =>   LEDR_0  <= '1';
+			when s1 =>   LEDR_1  <= '1'; GPIO_0_0 <= '1';
+			when s2 =>   LEDR_2  <= '1';
+			when s3 =>   LEDR_3  <= '1';
+			when s4 =>   LEDR_4  <= '1';
+			when s5 =>   LEDR_5  <= '1';
+			when s6 =>   LEDR_6  <= '1';
+			when s7 =>   LEDR_7  <= '1';
+			when OTHERS =>   NULL;
+		 
+		end case;
+			
+	end process;	
+	
+	
+	alarm: process (all)
+	begin
+	IF state = s0 OR 
+	state = s1 OR 
+	state = s2 OR 
+	state = s3 OR 
+	state = s4 OR 
+	state = s5 OR 
+	state = s6 OR 
+	state = s7 THEN LEDG_7 <= '0';
+	ELSE
+	LEDG_7 <= '1';
+	END IF;
+	
 	end process;	
 	
 	GPIO_0_1 <= pulse;
