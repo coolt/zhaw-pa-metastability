@@ -1,0 +1,15 @@
+<internal_error>
+<sub_system>ERR</sub_system>
+<callstack>
+	0x7fd64e647d1d: ccl_err + 0x9d1d (_ZN15ERR_STACKWALKER15get_stack_traceEPPKviiPv + 0xb3)
+	0x7fd64e64ad69: ccl_err + 0xcd69 (_Z14err_terminatorv + 0x77)
+	0x7fd64a41dc12: dinkum_alt + 0x1dc12 (_ZSt9terminatev + 0x12)
+	0x7fd647b8c07e: stdc++.so.6 + 0xbd07e
+	0x7fd64e64b1a9: ccl_err + 0xd1a9 (err_sigaction_handler + 0x7a)
+	0x7fd648b0f340: pthread.so.0 + 0x10340
+</callstack>
+<error>*** Fatal Error: Unhandled Exception</error>
+<date>Wed Oct 14 08:53:28 2015
+</date>
+<version>Version 13.0.1 Build 232 06/12/2013 Service Pack 1 SJ Full Version</version>
+</internal_error>

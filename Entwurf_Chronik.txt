@@ -1,0 +1,13 @@
+Detect Metastability
+
+1. Ansatz (bis 13. Okotber)
+---------------------------
+Key_0 ist asynchroner Input.
+Bringt FF in metastabilen Zustand
+
+
+2. Ansatz (14. Okotober)
+------------------------
+Key_0 wird ersetzt durch Counter mit tieferer Frequenz.
+
+
