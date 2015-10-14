@@ -18,7 +18,6 @@ entity metastability is
 port (CLOCK_27 : 	in std_logic;
 		CLOCK_50 : 	in std_logic;
       SW_17 : 		in std_logic;  
-		GPIO_1_8: 	out std_logic;
       GPIO_0_0 :  out std_logic;		-- state 
 		GPIO_0_1 :  out std_logic;    -- pulse 
 		LEDR_17:		out std_logic
@@ -136,7 +135,7 @@ begin
 			 end if;
 		
 		when s7 =>       		 
-				next_state <= s7;
+				next_state <= s0;    -----
 		end case;
 		
 	end process;	
@@ -162,7 +161,7 @@ begin
 	fsm_output: process (all)
 	begin
 		-- not allowed state
-		if (state = s2) or (state = s3) or (state = s4) or (state = s5) or (state = s6) or (state = s7) then
+		if (state = s2) then -- or (state = s3) or (state = s4) or (state = s5) or (state = s6) or (state = s7) then
 			GPIO_0_0 <= '1';
 			LEDR_17   <= '1';
 		else
@@ -172,7 +171,6 @@ begin
 	end process;	
 	
 	GPIO_0_1 <= pulse;
-	GPIO_1_8 <= SW_17;
 	
 end behavioral;
 
