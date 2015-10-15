@@ -42,10 +42,18 @@ architecture behavioral of metastability_2 is
 --------------------------------------------
 -- signals
 --------------------------------------------
-type actual_state is (s0, s1, s2, s3, s4, s5, s6, s7); 
-		
-signal state: 			actual_state  := s0;  
-signal next_state: 	actual_state  ;
+--constant unstable : std_logic_vector(7 downto 0) := "00000000";
+constant s0			: std_logic_vector(7 downto 0) := "00000001";
+constant s1 		: std_logic_vector(7 downto 0) := "00000010";
+constant s2 		: std_logic_vector(7 downto 0) := "00000100";
+constant s3 		: std_logic_vector(7 downto 0) := "00001000";
+constant s4 		: std_logic_vector(7 downto 0) := "00010000";
+constant s5 		: std_logic_vector(7 downto 0) := "00100000";
+constant s6 		: std_logic_vector(7 downto 0) := "01000000";
+constant s7 		: std_logic_vector(7 downto 0) := "10000000";
+
+signal state: 			std_logic_vector(7 downto 0);  
+signal next_state: 	std_logic_vector(7 downto 0);
 
 signal cnt: 			integer range 0 to 15 := 0;  
 signal next_cnt: 		integer range 0 to 15 := 0;  
@@ -94,7 +102,6 @@ begin
 	fsm_input: process (all)		
 	begin 	
 	  case state is
-		 -- toggeling from s0 to s1 during pulse
 	  	 when s0 => 
 			  if(pulse ='1') then
 				next_state <= s1;
@@ -104,7 +111,7 @@ begin
 			
 		 when s1 =>    
 			 if(pulse ='1') then
-			   -- switch force other states
+			 
 				if SW_17 = '1' then
 						next_state <= s2;  
 				else 
@@ -120,7 +127,8 @@ begin
 		 when s4 =>   next_state <= s5;
 		 when s5 =>	  next_state <= s6;
 		 when s6 =>   next_state <= s7;
-		 when s7 =>   next_state <= s7;    
+		 when s7 =>   next_state <= s7;  
+		 when others => next_state <= s0; --unstable;  -- s0: immer astabil
 	  end case;
 		
 	end process;	
@@ -149,6 +157,7 @@ begin
 	LEDR_5  <= '0';
 	LEDR_6  <= '0';
 	LEDR_7  <= '0';
+	LEDG_7  <= '0';
 	GPIO_0_0 <= '0';
 	
 	case state is
@@ -160,29 +169,12 @@ begin
 			when s5 =>   LEDR_5  <= '1';
 			when s6 =>   LEDR_6  <= '1';
 			when s7 =>   LEDR_7  <= '1';
-			when OTHERS =>   NULL;
-		 
+			--when unstable => LEDG_7 <= '1';
+			when OTHERS =>   LEDG_7 <= '1';		 
 	end case;
 			
-	end process;	
-	
-	
-	alarm: process (all)
-	begin
-	IF state = s0 OR 
-	state = s1 OR 
-	state = s2 OR 
-	state = s3 OR 
-	state = s4 OR 
-	state = s5 OR 
-	state = s6 OR 
-	state = s7 THEN LEDG_7 <= '0';
-	ELSE
-	LEDG_7 <= '1';
-	END IF;
-	
-	end process;	
-	
+end process;	
+		
 	GPIO_0_1 <= pulse;
 	
 end behavioral;
