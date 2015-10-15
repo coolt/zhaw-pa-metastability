@@ -17,10 +17,11 @@ ENTITY metastability_2 IS
 
 port (CLOCK_27 : 	in std_logic;
 		CLOCK_50 : 	in std_logic;
-		KEY_1 : 		in std_logic; 		-- Reset
+		KEY_1 : 		in std_logic; 		-- reset
       GPIO_0_0 :  out std_logic;		-- state 
 		GPIO_0_1 :  out std_logic;    -- pulse 
-		SW_17:      in std_logic;
+		SW_17:      in std_logic;	   -- force s2
+		SW_16:      in std_logic;     -- synchronisation
 		LEDR_0:		out std_logic;
 		LEDR_1:		out std_logic;
 		LEDR_2:		out std_logic;
@@ -40,9 +41,9 @@ end metastability_2;
 architecture behavioral of metastability_2 is
 
 --------------------------------------------
--- signals
+-- signals and constants
 --------------------------------------------
---constant unstable : std_logic_vector(7 downto 0) := "00000000";
+constant unstable	: std_logic_vector(7 downto 0) := "00000000";
 constant s0			: std_logic_vector(7 downto 0) := "00000001";
 constant s1 		: std_logic_vector(7 downto 0) := "00000010";
 constant s2 		: std_logic_vector(7 downto 0) := "00000100";
@@ -57,8 +58,11 @@ signal next_state: 	std_logic_vector(7 downto 0);
 
 signal cnt: 			integer range 0 to 15 := 0;  
 signal next_cnt: 		integer range 0 to 15 := 0;  
-signal pulse: 			std_logic     := '0';
+signal pulse_async: 			std_logic     := '0';
+signal pulse_sync1: 	std_logic     := '0';
+signal pulse_sync2: 	std_logic     := '0';
 signal cnt_reset:		std_logic     := '0';
+signal pulse: 			std_logic     := '0';
 
 
 begin
@@ -70,8 +74,10 @@ begin
 	begin
 		if (KEY_1 = '0') then
 			state <= s0;
-		elsif (rising_edge(CLOCK_27)) then
+		elsif (rising_edge(CLOCK_50)) then
 		  state <= next_state;
+		  pulse_sync1 <= pulse_async;
+		  pulse_sync2 <= pulse_sync1;
 		end if;
 	end process;
 
@@ -80,7 +86,7 @@ begin
 	begin
 		if (KEY_1 = '0') then
 			cnt <= 0;
-		elsif(rising_edge(CLOCK_50)) then
+		elsif(rising_edge(CLOCK_27)) then
 		  cnt <= next_cnt;   			
 		end if;
 	end process;
@@ -128,12 +134,23 @@ begin
 		 when s5 =>	  next_state <= s6;
 		 when s6 =>   next_state <= s7;
 		 when s7 =>   next_state <= s7;  
-		 when others => next_state <= s0; --unstable;  -- s0: immer astabil
-	  end case;
-		
-	end process;	
+		 when others => next_state <= s0;  -- unstable;
+	  end case;		
+end process;	
 
+--------------------------------------------
+-- Synchronisation py switch
+--------------------------------------------
+	multiplexer_synchro: process (all)
+	begin
+		if (SW_16 = '1') then
+			pulse <= pulse_sync2;
+		else 
+			pulse <= pulse_async;
+		end if;
+	end process;
 	
+
 --------------------------------------------
 -- output process
 --------------------------------------------
@@ -141,9 +158,9 @@ begin
 	decode_cnt_max: process (all)
 	begin
 		if (cnt = 15) then
-			pulse <= '1';
+			pulse_async <= '1';
 		else 
-			pulse <= '0';
+			pulse_async <= '0';
 		end if;
 	end process;	
 		
@@ -169,13 +186,12 @@ begin
 			when s5 =>   LEDR_5  <= '1';
 			when s6 =>   LEDR_6  <= '1';
 			when s7 =>   LEDR_7  <= '1';
-			--when unstable => LEDG_7 <= '1';
+			--when unstable => LEDG_7  <= '1';
 			when OTHERS =>   LEDG_7 <= '1';		 
-	end case;
-			
-end process;	
+	end case;			
+	end process;	
 		
-	GPIO_0_1 <= pulse;
+	GPIO_0_1 <= pulse_async;
 	
 end behavioral;
 
