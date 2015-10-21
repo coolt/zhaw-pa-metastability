@@ -1,26 +1,23 @@
 Detect Metastability
 
-1. Ansatz (bis 13. Okotber)
+1. Variante (bis 13. Okotber)
 ---------------------------
 Key_0 ist asynchroner Input.
 Bringt FF in metastabilen Zustand
 
 
-2. Ansatz (14. Okotober)
+2. Variante (14. Okotober)
 ------------------------
 Key_0 wird ersetzt durch Puls eines Zählers mit asynchroner Frequenz (27 MHz). States werden an LEDs ausgegeben (S0 - s7).
 State Machine ist über type definiert. 
 Einbauen eines Resets (asynchron) für Counter und FSM über Key_1. 
 Sw_17 für debugging: Gehen in state s2.
 
-3. Ansatz (15. Oktober)
+3. Variante (15. Oktober)
 -----------------------
 State Machine wird manuell inizialisert. Types für States weg.
 Umbauen auf One Hot Kompilieren. LED geben das jeweilige Bit des States an.
 
-
-3. Ansatz - Version b:
------------------------
 Key _1 (Reset) wird synchronisiert. Per Switch_16 Auswahl kann man zwischen synchronisiertem Puls oder asynchronem Puls wählen.
 
 

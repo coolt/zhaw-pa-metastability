@@ -123,7 +123,7 @@ end process;
 --------------------------------------------
 	multiplexer_synchro: process (all)
 	begin
-		if (SW_16 = '1') then
+		if (SW_17 = '1') then
 			pulse <= pulse_sync2;
 		else 
 			pulse <= pulse_async;
@@ -143,9 +143,12 @@ end process;
 			pulse_async <= '0';
 		end if;
 	end process;	
-		
+
+	
 	fsm_output: process (all)
+	
 	begin
+	
 	-- Default Values
 	LEDR_0   <= '0';
 	LEDR_1   <= '0';
